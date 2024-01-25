@@ -1,12 +1,8 @@
-import os
 import threading
-import pandas as pd
-import numpy as np
 from pylsl import resolve_stream,StreamInlet
 import mne
 import joblib
 import socket
-import random
 
 import tkinter as tk
 
@@ -280,8 +276,7 @@ class GUI:
             while True:
 
                 try:
-                    # output = self.RunModel(self)
-                    output = random.randint(0,2)
+                    output = self.RunModel(self)
                     message = str(output)
                     self.eeg_info_label.config(state='normal')
                     text=message+", "
@@ -294,28 +289,27 @@ class GUI:
             client_socket.close()
 
     def RunModel(self):
-        # data = []
-        # n = 0
-        # while n < 256*round(self.Epoch_time.get())+1:
-        #     sample,timestamp = self.inlet.pull_sample()
-        #     data.append(sample)
-        #     n+=1
-        # if self.number_channels == 32:
-        #     organised_data = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
-        # elif self.number_channels == 5:
-        #     organised_data = [[],[],[],[],[]]
-        # for i in range(len(data)):
-        #     for j in range(len(organised_data)):
-        #         organised_data[j].append(data[i][j])
-        # raw = mne.io.RawArray(organised_data,self.info)
-        # if self.Notch_filter.get() != 0:
-        #     raw.notch_filter(freqs=self.Notch_filter.get())
-        # if self.band_freq_high.get() != 0.0 & self.band_freq_low.get() != 0.0:
-        #     raw.filter(l_freq = self.band_freq_low.get(), h_freq = self.band_freq_high.get())
-        # epoch = mne.make_fixed_length_epochs(raw,duration=self.Epoch_time.get())
-        # X = epoch.get_data()
-        # output = self.model.predict(X)
-        output = random.randint(0,2)
+        data = []
+        n = 0
+        while n < 256*round(self.Epoch_time.get())+1:
+            sample,timestamp = self.inlet.pull_sample()
+            data.append(sample)
+            n+=1
+        if self.number_channels == 32:
+            organised_data = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+        elif self.number_channels == 5:
+            organised_data = [[],[],[],[],[]]
+        for i in range(len(data)):
+            for j in range(len(organised_data)):
+                organised_data[j].append(data[i][j])
+        raw = mne.io.RawArray(organised_data,self.info)
+        if self.Notch_filter.get() != 0:
+            raw.notch_filter(freqs=self.Notch_filter.get())
+        if self.band_freq_high.get() != 0.0 & self.band_freq_low.get() != 0.0:
+            raw.filter(l_freq = self.band_freq_low.get(), h_freq = self.band_freq_high.get())
+        epoch = mne.make_fixed_length_epochs(raw,duration=self.Epoch_time.get())
+        X = epoch.get_data()
+        output = self.model.predict(X)
         return output
     
     def PreviewEMG(self):
